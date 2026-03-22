@@ -2,15 +2,24 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MockERC20 is ERC20 {
-    constructor() ERC20("Mock USDC", "mUSDC") {}
+/**
+ * @title MockERC20
+ * @dev Standard ERC20 token for testing the AtomicHandover system.
+ */
+contract MockERC20 is ERC20, Ownable {
+    uint8 private _decimals;
 
-    function mint(address to, uint256 amount) external {
-        _mint(to, amount);
+    constructor(string memory name, string memory symbol, uint8 decimals_) ERC20(name, symbol) Ownable(msg.sender) {
+        _decimals = decimals_;
     }
 
-    function decimals() public pure override returns (uint8) {
-        return 6;
+    function decimals() public view virtual override returns (uint8) {
+        return _decimals;
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
     }
 }

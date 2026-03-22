@@ -4,12 +4,14 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const RPC_URL = "https://sepolia.base.org";
-const USDC_ADDRESS = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
-const HANDOVER_ADDRESS = "0x54998a35fbCb1EC8583890467A8b31F1ce16efDd";
+const HANDOVER_ADDRESS = "0x41EfECDB514c78cE5A7eF022A930fBAD6919Dcd6";
+const TOKEN_ADDRESS = "0x405A5bAF6a66319de62ab6A86058dB4829F7487e";
 
 const W1_KEY = process.env.WALLET_1_PRIVATE_KEY; // Proposer
 const W2_KEY = process.env.WALLET_2_PRIVATE_KEY; // Client
 const W3_KEY = process.env.WALLET_3_PRIVATE_KEY; // Evaluator
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function main() {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -18,82 +20,76 @@ async function main() {
   const evaluator = new ethers.Wallet(W3_KEY, provider);
 
   const handoverAbi = [
-    "event JobCreated(uint256 indexed jobId, address indexed client, address indexed provider, address evaluator, uint256 expiredAt, address hook)",
     "function createJob(address, address, uint256, string, address) external returns (uint256)",
     "function setBudget(uint256, uint256, bytes) external",
-    "function fund(uint256, bytes) external",
+    "function fund(uint256, uint256, bytes) external",
     "function submit(uint256, bytes32, bytes) external",
     "function complete(uint256, bytes32, bytes) external",
-    "function getJob(uint256) external view returns (tuple(address client, address provider, address evaluator, uint256 budget, uint256 expiredAt, bytes32 deliverable, uint8 state, string description, address hook))"
+    "function nextJobId() external view returns (uint256)"
   ];
-  const usdcAbi = ["function approve(address, uint256) returns (bool)", "function balanceOf(address) view returns (uint256)", "function decimals() view returns (uint8)"];
+  const erc20Abi = [
+    "function approve(address, uint256) returns (bool)", 
+    "function allowance(address, address) view returns (uint256)",
+    "function balanceOf(address) view returns (uint256)", 
+    "function decimals() view returns (uint8)"
+  ];
 
   const handover = new ethers.Contract(HANDOVER_ADDRESS, handoverAbi, provider);
-  const usdc = new ethers.Contract(USDC_ADDRESS, usdcAbi, provider);
-  const decimals = await usdc.decimals();
-  const amount = ethers.parseUnits("1", decimals);
+  const token = new ethers.Contract(TOKEN_ADDRESS, erc20Abi, provider);
+  const decimals = await token.decimals();
+  const amount = ethers.parseUnits("10", decimals);
 
-  console.log("--- Starting E2E Handover Test ---");
+  console.log("--- Starting FINAL E2E Test ---");
 
-  let proposerNonce = await proposer.getNonce();
-  let clientNonce = await client.getNonce();
-  let evaluatorNonce = await evaluator.getNonce();
-
-  // Step 1: Client creates Job
-  console.log("Step 1: Client creating Job...");
-  const createTx = await handover.connect(client).createJob(
-    proposer.address,
-    evaluator.address,
-    Math.floor(Date.now() / 1000) + 3600,
-    "Test Bug Fix",
-    ethers.ZeroAddress,
-    { nonce: clientNonce++ }
-  );
-  const receipt = await createTx.wait();
+  // Create Job
+  const jobId = await handover.nextJobId();
+  console.log(`Step 1: Creating Job ${jobId}...`);
+  await (await handover.connect(client).createJob(proposer.address, evaluator.address, Math.floor(Date.now()/1000)+3600, "Final Test", ethers.ZeroAddress)).wait();
   
-  const log = receipt.logs.find(l => l.topics[0] === ethers.id("JobCreated(uint256,address,address,address,uint256,address)"));
-  const jobId = ethers.toBigInt(log.topics[1]);
-  console.log(`Job Created! ID: ${jobId}`);
+  await sleep(3000);
 
-  // Debug: Read Job Data
-  const job = await handover.getJob(jobId);
-  console.log(`Job Client:   ${job.client}`);
-  console.log(`Job Provider: ${job.provider}`);
-  console.log(`Wallet Client:   ${client.address}`);
-  console.log(`Wallet Proposer: ${proposer.address}`);
+  // Set Budget
+  console.log("Step 2: Setting Budget...");
+  await (await handover.connect(client).setBudget(jobId, amount, "0x")).wait();
 
-  // Step 2: Set Budget
-  console.log("\nStep 2: Client setting budget to 1 USDC...");
-  const budgetTx = await handover.connect(client).setBudget(jobId, amount, "0x", { nonce: clientNonce++ });
-  await budgetTx.wait();
+  await sleep(3000);
 
-  // Step 3: Client approves & funds
-  console.log("\nStep 3: Client approving & funding...");
-  const approveTx = await usdc.connect(client).approve(HANDOVER_ADDRESS, amount, { nonce: clientNonce++ });
+  // Approve
+  console.log("Step 3: Approving...");
+  const approveTx = await token.connect(client).approve(HANDOVER_ADDRESS, amount);
   await approveTx.wait();
-  const fundTx = await handover.connect(client).fund(jobId, "0x", { nonce: clientNonce++ });
-  await fundTx.wait();
+  
+  // WAIT AND VERIFY ALLOWANCE
+  console.log("Waiting for allowance to propagate...");
+  await sleep(5000);
+  const allowance = await token.allowance(client.address, HANDOVER_ADDRESS);
+  console.log(`Allowance: ${ethers.formatUnits(allowance, decimals)} pUSDC`);
+
+  if (allowance < amount) {
+    throw new Error("Allowance too low after approval!");
+  }
+
+  // Fund
+  console.log("Step 4: Funding...");
+  await (await handover.connect(client).fund(jobId, amount, "0x")).wait();
   console.log("Job Funded!");
 
-  // Step 4: Proposer submits fix
-  console.log("\nStep 4: Proposer submitting fix hash...");
-  const dummyHash = ethers.keccak256(ethers.toUtf8Bytes("The fix is in the repo"));
-  const submitTx = await handover.connect(proposer).submit(jobId, dummyHash, "0x", { nonce: proposerNonce++ });
-  await submitTx.wait();
+  await sleep(3000);
 
-  // Step 5: Evaluator completes
-  console.log("\nStep 5: Evaluator completing job...");
-  const completeTx = await handover.connect(evaluator).complete(jobId, ethers.keccak256(ethers.toUtf8Bytes("Fix verified")), "0x", { nonce: evaluatorNonce++ });
-  await completeTx.wait();
-  console.log("Job Completed!");
+  // Submit
+  console.log("Step 5: Submitting fix...");
+  const fixHash = ethers.keccak256(ethers.toUtf8Bytes("Ready"));
+  await (await handover.connect(proposer).submit(jobId, fixHash, "0x")).wait();
 
-  // Step 6: Verify final balance
-  const proposerFinal = await usdc.balanceOf(proposer.address);
-  console.log(`Final Proposer Balance: ${ethers.formatUnits(proposerFinal, decimals)} USDC`);
-  console.log("--- E2E Test Success! ---");
+  await sleep(3000);
+
+  // Complete
+  console.log("Step 6: Completing...");
+  await (await handover.connect(evaluator).complete(jobId, ethers.keccak256(ethers.toUtf8Bytes("Done")), "0x")).wait();
+
+  const proposerFinal = await token.balanceOf(proposer.address);
+  console.log(`\nFinal Proposer Balance: ${ethers.formatUnits(proposerFinal, decimals)} pUSDC`);
+  console.log("--- FINAL E2E SUCCESS! ---");
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main().catch(console.error);

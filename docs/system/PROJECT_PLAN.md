@@ -29,23 +29,37 @@ The contract will implement the `IACP` (Agent Commerce Protocol) interface with 
 
 ---
 
-## 3. Evaluator Agent Design (LangGraph)
-The agent will be a state machine with the following nodes:
+## 3. Evaluator Agent Design (The Integrity Bridge)
+The agent is an autonomous LangGraph state machine responsible for verifying that the off-chain deliverable matches the on-chain agreement.
 
-1. **Clone & Inspect**: Clones the private GitHub repo (using provided access).
-2. **Verification Engine**: Runs automated tests/checks to verify the fix is real and deployed.
-3. **Sanitization**: Generates a sanitized download package (e.g., a ZIP file uploaded to IPFS).
-4. **Encryption**: Encrypts the download link using Lit Protocol, accessible only by the Client.
-5. **Resolution Trigger**: Calls `complete` or `reject` on the `AtomicHandover.sol` contract based on the verification result.
+### Integrity-First Processing Nodes
+1. **Verification Engine (zkTLS)**: 
+   - Uses **vlayer** to prove the state of private GitHub repositories.
+   - Generates a cryptographic proof that the specific bug-fix PR was merged.
+   - Ensures the proof is generated without exposing sensitive API credentials.
+2. **Security Sealing (Atomic Gate)**: 
+   - Generates a local `AES-256` key for the verified codebase.
+   - Stores the key in a gated vault that only releases it to the Client once the on-chain status is `Completed`.
+3. **On-Chain Settlement**: 
+   - Triggers `complete(jobId, proofHash)` on Base Sepolia.
+   - This single action releases payment AND unlocks the atomic gate for the Client.
+
+### Security Guarantee
+The Evaluator acts as a neutral oracle. It cannot release funds without a valid zkTLS proof, and it cannot release the code until the funds are settled on-chain.
 
 ---
 
-## 4. External Dependencies
-- **Lit Protocol SDK**: For access control and decryption key management.
-- **Filecoin/IPFS (Lighthouse/Web3.Storage)**: For off-chain storage.
-- **GitHub API**: For Evaluator access to private repositories.
-- **Viem/Ethers**: For on-chain interactions.
-- **Hardhat/Foundry**: For contract development and testing.
+## 4. Job Creator Agent Design (The Strategic Architect)
+The Creator Agent is the entry point for humans or other agents into the protocol. Its role is to design a high-integrity agreement.
+
+### Strategic Responsibilities
+1. **Requirement Extraction**: Parses natural language to extract the Job `description`, `budget`, and `provider`.
+2. **Evaluator Selection**: Matches the Job's security profile with a verified Evaluator Agent (e.g., selecting the 'zkTLS-GitHub' evaluator for a codebase bug fix).
+3. **Hook Orchestration**: Recommends and attaches mandatory hooks (e.g., `CollateralHook` for high-value bounties) to protect the Client.
+4. **On-Chain Initialization**: Deploys the Job to the `AtomicHandover` contract and hands off control to the protocol state machine.
+
+### Security Role
+The Creator ensures that the Job is **structurally sound** before a single dollar is escrowed. It prevents "Malformed Job" attacks by validating all parameters against the EIP-8183 standard.
 
 ---
 

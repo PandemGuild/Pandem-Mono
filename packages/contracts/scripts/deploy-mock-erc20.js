@@ -6,26 +6,26 @@ dotenv.config();
 
 const RPC_URL = "https://sepolia.base.org";
 const DEPLOYER_KEY = process.env.DEPLOYER_PRIVATE_KEY;
-const USDC_ADDRESS = "0x405A5bAF6a66319de62ab6A86058dB4829F7487e";
 
 async function main() {
   const provider = new ethers.JsonRpcProvider(RPC_URL);
   const wallet = new ethers.Wallet(DEPLOYER_KEY, provider);
 
-  console.log(`Deploying from: ${wallet.address}`);
+  console.log(`Deploying MockERC20 from: ${wallet.address}`);
 
-  // Load ABI and Bytecode from Hardhat artifacts
-  const artifactPath = "./artifacts/contracts/AtomicHandover.sol/AtomicHandover.json";
+  const artifactPath = "./artifacts/contracts/MockERC20.sol/MockERC20.json";
   const artifact = JSON.parse(fs.readFileSync(artifactPath, "utf8"));
 
   const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, wallet);
-  const contract = await factory.deploy(USDC_ADDRESS);
+  
+  // Deploy with: Name, Symbol, Decimals
+  const contract = await factory.deploy("Pandem Mock USDC", "pUSDC", 6);
 
   console.log(`Waiting for deployment... Hash: ${contract.deploymentTransaction().hash}`);
   await contract.waitForDeployment();
 
   const address = await contract.getAddress();
-  console.log(`AtomicHandover (Fixed) deployed to: ${address}`);
+  console.log(`MockERC20 deployed to: ${address}`);
 }
 
 main().catch((error) => {

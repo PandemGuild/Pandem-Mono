@@ -1,20 +1,19 @@
-import "@nomicfoundation/hardhat-toolbox";
+import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
 import { defineConfig } from "hardhat/config";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 
 export default defineConfig({
+  plugins: [hardhatToolboxViemPlugin],
   solidity: "0.8.24",
   networks: {
     baseSepolia: {
+      type: "http",
       url: "https://sepolia.base.org",
       chainId: 84532,
       accounts: [
         process.env.DEPLOYER_PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000",
-        process.env.WALLET_1_PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000",
-        process.env.WALLET_2_PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000",
-        process.env.WALLET_3_PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000",
       ],
     },
   },
