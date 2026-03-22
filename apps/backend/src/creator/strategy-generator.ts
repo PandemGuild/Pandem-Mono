@@ -20,7 +20,7 @@ export class StrategyGenerator {
   constructor() {
     if (process.env.GOOGLE_API_KEY) {
       this.model = new ChatGoogle({
-        model: "gemini-2.0-flash", // Using fast reasoning model
+        model: "gemini-flash-latest", // Using stable latest model
         apiKey: process.env.GOOGLE_API_KEY,
       });
     } else {
@@ -54,8 +54,12 @@ export class StrategyGenerator {
 
     try {
       const response = await this.model.invoke(prompt);
-      // Simple parse (in production we'd use StructuredOutputParser)
-      return JSON.parse(response.content as string);
+      let content = response.content as string;
+      
+      // Clean markdown formatting if present
+      content = content.replace(/```json/g, "").replace(/```/g, "").trim();
+      
+      return JSON.parse(content);
     } catch (error) {
       console.error("AI Generation failed, falling back to mock:", error);
       return this.mockGenerate(intent);

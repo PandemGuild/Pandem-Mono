@@ -1,0 +1,22 @@
+{
+  "1": {
+    "rubric": "1. Identify all instances of buffer/string copying in the Pull Request. 2. Confirm that 'strcpy' and other unbounded functions have been removed. 3. Verify that 'strncpy' is used for all string copies. 4. Ensure the 'n' parameter (length) is derived from the 'sizeof' the destination buffer or its allocated capacity, not the source length. 5. Crucially, verify that the destination buffer is manually null-terminated after the 'strncpy' call (e.g., dest[max_len - 1] = '\\0'), as strncpy does not guarantee null-termination if the source exceeds the length. 6. Check for any 'off-by-one' errors in the length calculations.",
+    "caseType": "CODE_FIX"
+  },
+  "2": {
+    "rubric": "1. Verification of Removal: Ensure no instances of 'strcpy', 'strcat', or other unbounded string functions remain in the Pandem-Core codebase.\n2. Bounded Length Implementation: Confirm that every buffer copy operation utilizes 'strncpy' or a safer equivalent (like 'strlcpy' or 'snprintf').\n3. Length Parameter Accuracy: Verify that the 'n' parameter in 'strncpy(dest, src, n)' is derived from the actual size of the destination buffer (e.g., sizeof(dest)) rather than the length of the source string.\n4. Null-Termination Guarantee: Since 'strncpy' does not guarantee null-termination if the source is longer than the limit, verify that the fix explicitly sets the last byte of the destination buffer to '\\0' or uses a pattern that ensures termination.\n5. Overflow Validation: Conduct a static analysis check to ensure that the bounds used in the fix do not result in off-by-one errors.\n6. Regression Testing: Ensure the modified code compiles and passes all existing unit tests and integration tests related to string handling.",
+    "caseType": "CODE_FIX"
+  },
+  "3": {
+    "rubric": "1. API Identification: Verify that all instances of 'strcpy', 'sprintf', and 'gets' have been identified and removed from the Pandem-Core codebase. 2. Bounded Function Usage: Confirm every replacement utilizes 'strncpy' or 'snprintf' with a strictly defined 'n' parameter. 3. Buffer Size Validation: Ensure the length parameter 'n' passed to strncpy matches the sizeof() the destination buffer, not the source. 4. Null-Termination Guarantee: Verify that manual null-termination (e.g., buffer[n-1] = '\\0';) is performed immediately following the strncpy call, as strncpy does not guarantee a null terminator if the source is longer than n. 5. Compilation & Regression: Ensure the code compiles without -Wstringop-truncation warnings and passes existing string-processing unit tests. 6. Boundary Testing: Verify that a test case exists where a source string larger than the destination buffer is handled without memory corruption.",
+    "caseType": "CODE_FIX"
+  },
+  "4": {
+    "rubric": "1. Absence of Unsafe Functions: Confirm that instances of `strcpy`, `strcat`, and `gets` have been replaced. 2. Bounded Length Implementation: Verify that every buffer copy operation utilizes `strncpy` or `strlcpy` with a strictly defined maximum length. 3. Null Termination: Ensure that buffers are explicitly null-terminated after a `strncpy` operation, as `strncpy` does not guarantee null termination if the source string exceeds the limit. 4. Boundary Accuracy: Validate that the length parameter passed to `strncpy` matches the allocated destination buffer size (avoiding off-by-one errors). 5. Merge Status: Confirm the fix is merged into the 'main' or 'master' branch of Pandem-Core and passed CI/CD memory safety scans.",
+    "caseType": "CODE_FIX"
+  },
+  "5": {
+    "rubric": "1. Audit the Pull Request diff to ensure all instances of unbounded string copying (e.g., strcpy, sprintf) have been removed. 2. Confirm that every new buffer copy operation utilizes strncpy or a bounded equivalent (e.g., strlcpy, snprintf). 3. Verify that the length parameter in strncpy accurately reflects the destination buffer size (sizeof(dest)) to prevent overflows. 4. Ensure manual null-termination is applied after strncpy calls, as strncpy does not null-terminate if the source string equals or exceeds the specified length. 5. Validate that no off-by-one errors are introduced in the length calculation.",
+    "caseType": "CODE_FIX"
+  }
+}
