@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.local
+.git-agent-token
+dist/
+coverage/
+typechain-types/
+cache/
+artifacts/
