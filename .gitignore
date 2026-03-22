@@ -7,3 +7,5 @@ coverage/
 typechain-types/
 cache/
 artifacts/
+
+CURRENT_OBJECTIVE.md
