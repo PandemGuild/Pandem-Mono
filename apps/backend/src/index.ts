@@ -28,7 +28,7 @@ const publicClient = createPublicClient({
   transport: http(process.env.RPC_URL),
 });
 
-console.log("--- PANDEM HIGH-INTEGRITY BACKEND ---");
+console.log("--- PANDEM UNIFIED COMMERCE BACKEND ---");
 
 publicClient.watchEvent({
   address: HANDOVER_CONTRACT_ADDRESS as `0x${string}`,
@@ -36,21 +36,21 @@ publicClient.watchEvent({
   onLogs: async (logs) => {
     for (const log of logs) {
       const jobId = log.args.jobId as bigint;
-      console.log(`\n[DISPATCHER] Job ${jobId} Funded! Triggering Evaluator Agent...`);
+      console.log(`\n[DISPATCHER] Job ${jobId} Funded!`);
       
-      const strategy = await vault.getStrategy(jobId);
-      if (!strategy) {
-        console.warn(`⚠️ No rubric found for Job ${jobId}. Skipping verification.`);
+      const order = await vault.getOrderByJobId(jobId);
+      if (!order) {
+        console.warn(`⚠️ No order/rubric found for Job ${jobId}. Skipping.`);
         continue;
       }
 
-      console.log(`[DISPATCHER] Running Evaluator Graph for ${strategy.caseType}...`);
+      console.log(`[DISPATCHER] Triggering Evaluator Agent for Order ${order.orderId}...`);
       await evaluatorGraph.invoke({
         jobId,
-        rubric: strategy.rubric,
-        caseType: strategy.caseType as any,
-        description: "",
-        requiredSkills: [],
+        rubric: order.strategy.rubric,
+        caseType: order.strategy.caseType as any,
+        description: order.job.description,
+        requiredSkills: order.strategy.requiredSkills,
         skillResults: {},
         isVerified: false,
         verdictReasoning: "",
@@ -60,23 +60,43 @@ publicClient.watchEvent({
   },
 });
 
-// 2. CREATOR API: Strategic Architect Entry Point
-app.post("/api/jobs/architect", async (req, res) => {
-  const { jobId, intent } = req.body;
-  console.log(`\n[CREATOR] Architecting Strategy for Job ${jobId}...`);
+// 2. UNIFIED ORDER API
+app.post("/api/orders/create", async (req, res) => {
+  const { job } = req.body;
+  console.log(`\n[ORDER] Architecting Deal for: ${job.description}`);
   
   try {
-    const strategy = await generator.generate(intent);
-    await vault.saveStrategy(BigInt(jobId), strategy.rubric, strategy.caseType);
+    // Architect Phase
+    const strategy = await generator.generate(job.description);
     
-    res.json({ status: "success", strategy });
+    // Vault Phase
+    const orderId = await vault.createOrder({
+      job,
+      strategy
+    });
+    
+    res.json({ 
+      status: "success", 
+      orderId, 
+      paylink: `http://localhost:5173/checkout/${orderId}` 
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to generate strategy" });
+    console.error("Order creation failed:", error);
+    res.status(500).json({ error: "Failed to architect deal" });
   }
 });
 
-app.get("/health", (req, res) => {
-  res.json({ status: "online", contract: HANDOVER_CONTRACT_ADDRESS });
+// 3. INTERNAL LINKING (For simulation/agent use)
+app.post("/api/orders/:id/link", async (req, res) => {
+  const { jobId } = req.body;
+  await vault.linkJob(req.params.id, BigInt(jobId));
+  res.json({ status: "linked" });
+});
+
+app.get("/api/orders/:id", async (req, res) => {
+  const order = await vault.getOrder(req.params.id);
+  if (!order) return res.status(404).json({ error: "Order not found" });
+  res.json(order);
 });
 
 app.listen(port, () => {

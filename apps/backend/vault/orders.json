@@ -1,0 +1,25 @@
+{
+  "0sx6l28up0a": {
+    "job": {
+      "description": "Verify critical security fix for Pandem-Core Buffer Overflow.",
+      "budget": "10",
+      "provider": "0x7083d904291D855Eaf10B707F4238dFF9f017051",
+      "evaluator": "0x08c3e48c9e7bc28b9e4258e282c43618EF7D50E5",
+      "expiry": 1774229385
+    },
+    "strategy": {
+      "caseType": "CODE_FIX",
+      "requiredSkills": [
+        "github-skill",
+        "vlayer-skill",
+        "security-audit-skill",
+        "fuzzing-skill"
+      ],
+      "rubric": "1. Exploit Verification: Confirm the provided Proof of Concept (PoC) triggers a crash or unauthorized memory access on the pre-fix commit. 2. Bounds Enforcement: Verify the fix replaces unsafe functions (e.g., memcpy, strcpy) with safe alternatives (e.g., memcpy_s, strlcpy) or implements explicit length-checks before memory writes. 3. Integer Overflow Check: Ensure the buffer size calculation itself is not susceptible to integer overflows that could bypass the fix. 4. Fuzzing Validation: Run a targeted fuzzer against the patched function for at least 10,000 iterations without triggering a SegFault or memory corruption. 5. Vlayer ZK-Proof: Verify that the CI/CD pipeline generated a valid Vlayer proof confirming all security unit tests passed in a deterministic environment.",
+      "confidence": 0.98
+    },
+    "orderId": "0sx6l28up0a",
+    "status": "CREATED",
+    "onChainJobId": "6"
+  }
+}
