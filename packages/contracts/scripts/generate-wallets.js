@@ -1,6 +1,6 @@
 import { Wallet } from "ethers";
 
-console.log("Generating 4 new wallets for Pandem-Project (Base Sepolia)...");
+console.log("Generating 4 new wallets for Pandem-Project (Celo Sepolia)...");
 console.log("-----------------------------------------------------------");
 
 const labels = ["Main Deployer", "Test Wallet 1", "Test Wallet 2", "Test Wallet 3"];

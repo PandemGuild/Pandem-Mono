@@ -46,7 +46,7 @@
 ---
 
 ## Phase 5: Hackathon Deployment
-- [ ] Configure `hardhat.config.ts` for **Base Sepolia**.
+- [ ] Configure `hardhat.config.ts` for **Celo Sepolia**.
 - [ ] Obtain testnet ETH from a Base faucet.
 - [ ] Run the deployment script on the live testnet.
-- [ ] Update `/apps/backend/config/contracts.ts` with the final Base Sepolia addresses.
+- [ ] Update `/apps/backend/config/contracts.ts` with the final Celo Sepolia addresses.

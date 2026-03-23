@@ -101,7 +101,7 @@ const settlementNode = async (state: EvaluatorState) => {
     return { ...state, status: "REJECTED" };
   }
 
-  console.log("🟢 All Checks Passed! Finalizing payout on Base Sepolia...");
+  console.log("🟢 All Checks Passed! Finalizing payout on Celo Sepolia...");
   const reasonHash = keccak256(stringToBytes(state.verdictReasoning));
   await settler.completeJob(state.jobId, reasonHash);
   return { ...state, status: "COMPLETED" };

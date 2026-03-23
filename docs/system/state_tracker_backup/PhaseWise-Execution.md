@@ -62,8 +62,8 @@
 ## Phase 5: Polish & Deployment (Hour 12)
 **Goal:** Move from local simulation to testnet reality.
 
-- [ ] **Step 31:** Change Hardhat network config to Base Sepolia. Fund a deployer wallet with test ETH. 
-- [ ] **Step 32:** Deploy all Phase 2, 3, and 4 contracts to Base Sepolia.
+- [ ] **Step 31:** Change Hardhat network config to Celo Sepolia. Fund a deployer wallet with test ETH. 
+- [ ] **Step 32:** Deploy all Phase 2, 3, and 4 contracts to Celo Sepolia.
 - [ ] **Step 33:** Update the Backend `contracts.ts` config with the live testnet addresses.
 - [ ] **Step 34:** Run an E2E test of all 3 examples on the testnet.
 - [ ] **Step 35:** Deploy Frontend to Vercel/Netlify. Deploy Backend to Render/Railway.

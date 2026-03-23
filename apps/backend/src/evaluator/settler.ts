@@ -35,7 +35,7 @@ export class EvaluatorSettler {
    * Finalizes the job on-chain.
    */
   async completeJob(jobId: bigint, reasonHash: `0x${string}`) {
-    console.log(`[SETTLER] Finalizing Job ${jobId} on Base Sepolia...`);
+    console.log(`[SETTLER] Finalizing Job ${jobId} on Celo Sepolia...`);
     
     try {
       const { request } = await this.publicClient.simulateContract({

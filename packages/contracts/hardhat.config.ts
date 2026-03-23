@@ -11,7 +11,7 @@ export default defineConfig({
     baseSepolia: {
       type: "http",
       url: "https://sepolia.base.org",
-      chainId: 84532,
+      chainId: 11142220,
       accounts: [
         process.env.DEPLOYER_PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000",
       ],

@@ -6,7 +6,7 @@ The Evaluator Agent is an autonomous state machine that verifies ERC-8183 Job su
 ---
 
 ## 2. Required Environment Variables
-- `RPC_URL`: Base Sepolia RPC endpoint.
+- `RPC_URL`: Celo Sepolia RPC endpoint.
 - `EVALUATOR_PRIVATE_KEY`: Private key for the evaluator wallet.
 - `GITHUB_PAT`: GitHub Personal Access Token for private repo access.
 - `PINATA_API_KEY` / `SECRET`: For IPFS storage.
@@ -36,7 +36,7 @@ The Evaluator Agent is an autonomous state machine that verifies ERC-8183 Job su
 - **Output**: `encryptedCID`, `evidenceHash`.
 
 ### Node 5: Settlement
-- **Action**: Call `complete(jobId, evidenceHash)` on Base Sepolia.
+- **Action**: Call `complete(jobId, evidenceHash)` on Celo Sepolia.
 - **Output**: Transaction hash.
 
 ---

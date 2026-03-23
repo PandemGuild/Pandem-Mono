@@ -10,7 +10,7 @@ Expertise in the neutral, deterministic verification of ERC-8183 Jobs. This skil
 ## Operational Security (LangGraph Pipeline)
 
 ### Stage 1: Discovery & Ingestion
-- Watch for `JobFunded` events on Base Sepolia.
+- Watch for `JobFunded` events on Celo Sepolia.
 - Extract the Job requirements and the Provider's `deliverable` hash.
 
 ### Stage 2: zkTLS Verification (vlayer)

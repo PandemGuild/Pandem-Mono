@@ -23,7 +23,7 @@ async function main() {
     const usdcBalance = await usdcContract.balanceOf(DEPLOYER_ADDRESS);
     console.log(`USDC Balance: ${ethers.formatUnits(usdcBalance, decimals)} USDC`);
   } catch (error) {
-    console.log("Error fetching USDC balance. Is the address correct for Base Sepolia?");
+    console.log("Error fetching USDC balance. Is the address correct for Celo Sepolia?");
   }
 }
 

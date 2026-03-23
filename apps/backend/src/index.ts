@@ -6,7 +6,7 @@ import * as dotenv from "dotenv";
 import { createPublicClient, http, parseAbiItem } from "viem";
 import { baseSepolia } from "viem/chains";
 import { HANDOVER_CONTRACT_ADDRESS } from "../config/contracts";
-import { VaultManager } from "./vault/manager";
+import { RedisService } from "./services/redis";
 import { StrategyGenerator } from "./creator/strategy-generator";
 import { evaluatorGraph } from "./evaluator/graph";
 
@@ -14,7 +14,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
-const vault = new VaultManager();
 const generator = new StrategyGenerator();
 
 app.use(cors());
@@ -28,7 +27,7 @@ const publicClient = createPublicClient({
   transport: http(process.env.RPC_URL),
 });
 
-console.log("--- PANDEM UNIFIED COMMERCE BACKEND ---");
+console.log("--- PANDEM UNIFIED REDIS BACKEND ---");
 
 publicClient.watchEvent({
   address: HANDOVER_CONTRACT_ADDRESS as `0x${string}`,
@@ -38,9 +37,9 @@ publicClient.watchEvent({
       const jobId = log.args.jobId as bigint;
       console.log(`\n[DISPATCHER] Job ${jobId} Funded!`);
       
-      const order = await vault.getOrderByJobId(jobId);
+      const order = await RedisService.getOrderByJobId(jobId);
       if (!order) {
-        console.warn(`⚠️ No order/rubric found for Job ${jobId}. Skipping.`);
+        console.warn(`⚠️ No order/rubric found in Redis for Job ${jobId}. Skipping.`);
         continue;
       }
 
@@ -66,19 +65,13 @@ app.post("/api/orders/create", async (req, res) => {
   console.log(`\n[ORDER] Architecting Deal for: ${job.description}`);
   
   try {
-    // Architect Phase
     const strategy = await generator.generate(job.description);
-    
-    // Vault Phase
-    const orderId = await vault.createOrder({
-      job,
-      strategy
-    });
+    const orderId = await RedisService.saveOrder({ job, strategy });
     
     res.json({ 
       status: "success", 
       orderId, 
-      paylink: `http://localhost:5173/checkout/${orderId}` 
+      paylink: `http://localhost:3000/checkout/${orderId}` 
     });
   } catch (error) {
     console.error("Order creation failed:", error);
@@ -86,15 +79,15 @@ app.post("/api/orders/create", async (req, res) => {
   }
 });
 
-// 3. INTERNAL LINKING (For simulation/agent use)
+// 3. INTERNAL LINKING
 app.post("/api/orders/:id/link", async (req, res) => {
   const { jobId } = req.body;
-  await vault.linkJob(req.params.id, BigInt(jobId));
+  await RedisService.linkJob(req.params.id, BigInt(jobId));
   res.json({ status: "linked" });
 });
 
 app.get("/api/orders/:id", async (req, res) => {
-  const order = await vault.getOrder(req.params.id);
+  const order = await RedisService.getOrder(req.params.id);
   if (!order) return res.status(404).json({ error: "Order not found" });
   res.json(order);
 });

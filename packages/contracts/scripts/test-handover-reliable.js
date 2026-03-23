@@ -39,7 +39,7 @@ async function main() {
   const evaluator = new ethers.Wallet(W3_KEY, provider);
 
   console.log("--- STARTING SCENARIO: ATOMIC HANDOVER (Evaluator-Gated) ---");
-  console.log("Project: Pandem (Base Sepolia)");
+  console.log("Project: Pandem (Celo Sepolia)");
   console.log("------------------------------------------------------------\n");
 
   const handoverAbi = [
@@ -99,7 +99,7 @@ async function main() {
   // 4. FUND
   console.log("Step 4: Client funding Job...");
   await (await handover.connect(client).fund(jobId, amount, "0x", { nonce: clientNonce++ })).wait();
-  console.log("🟢 Job Funded on Base Sepolia.\n");
+  console.log("🟢 Job Funded on Celo Sepolia.\n");
 
   await sleep(2000);
 

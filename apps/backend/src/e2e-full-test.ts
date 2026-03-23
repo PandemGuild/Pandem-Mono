@@ -44,7 +44,7 @@ async function main() {
   await sleep(2000);
 
   // 2. ON-CHAIN: Create Job
-  console.log("\n[STEP 2] Simulating Client creating Job on Base Sepolia...");
+  console.log("\n[STEP 2] Simulating Client creating Job on Celo Sepolia...");
   const hash1 = await client.writeContract({
     address: HANDOVER_CONTRACT_ADDRESS as `0x${string}`,
     abi: IACP_ABI,

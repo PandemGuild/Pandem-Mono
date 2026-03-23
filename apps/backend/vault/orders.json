@@ -21,5 +21,49 @@
     "orderId": "0sx6l28up0a",
     "status": "CREATED",
     "onChainJobId": "6"
+  },
+  "1paahu8p0hb": {
+    "job": {
+      "description": "Zero-Day Buffer Overflow Fix for Pandem-Core Storage Module.",
+      "budget": "10",
+      "provider": "0x7083d904291D855Eaf10B707F4238dFF9f017051",
+      "evaluator": "0x08c3e48c9e7bc28b9e4258e282c43618EF7D50E5",
+      "expiry": 1774234802
+    },
+    "strategy": {
+      "caseType": "CODE_FIX",
+      "requiredSkills": [
+        "github-skill",
+        "vlayer-skill",
+        "security-audit-skill",
+        "memory-safety-analysis"
+      ],
+      "rubric": "1. Vulnerability Reproduction: Evaluator must verify a provided Proof-of-Concept (PoC) successfully triggers a memory corruption or crash on the pre-patch version of Pandem-Core Storage Module. 2. Patch Integrity: The fix must implement explicit bounds checking on all write operations to the storage buffer. 3. Function Replacement: Verify that unsafe legacy functions (e.g., memcpy, strcpy) have been replaced with safe variants (e.g., memcpy_s, strlcpy) or appropriate length-prefixed buffer abstractions. 4. Regression Testing: All existing storage module unit tests must pass to ensure core functionality is preserved. 5. Negative Testing: The PoC used in step 1 must no longer trigger a buffer overflow and must return a controlled error code (e.g., STORAGE_ERR_BUFFER_OVERFLOW). 6. Zero-Allocation Leak: Verify that the fix does not introduce memory leaks or secondary vulnerabilities (e.g., Integer Overflow in length calculation).",
+      "confidence": 0.98
+    },
+    "orderId": "1paahu8p0hb",
+    "status": "CREATED"
+  },
+  "knpefj3l6fq": {
+    "job": {
+      "description": "Zero-Day Buffer Overflow Fix for Pandem-Core Storage Module.",
+      "budget": "10",
+      "provider": "0x7083d904291D855Eaf10B707F4238dFF9f017051",
+      "evaluator": "0x08c3e48c9e7bc28b9e4258e282c43618EF7D50E5",
+      "expiry": 1774235676
+    },
+    "strategy": {
+      "caseType": "CODE_FIX",
+      "requiredSkills": [
+        "github-skill",
+        "vlayer-skill",
+        "security-audit-skill",
+        "memory-safety-analysis"
+      ],
+      "rubric": "1. PR Verification: The fix must be merged into the 'Pandem-Core' main branch with a signed commit. 2. Vulnerability Remediation: The code must replace unsafe memory operations (e.g., strcpy, memcpy without length validation) with safe alternatives or explicit bounds checking within the Storage Module. 3. vlayer Execution Proof: A zero-knowledge proof generated via vlayer must demonstrate that a provided exploit payload no longer causes a memory segmentation fault or unauthorized stack write. 4. Regression Testing: The submission must include a unit test that specifically targets the overflow vector, which must pass in a sandboxed CI environment. 5. Static Analysis: The affected module must pass a Clang/LLVM static analysis scan with zero 'Out-of-bound access' warnings. 6. Side-Effect Check: The fix must not degrade the storage module's read/write performance by more than 5% compared to the pre-vulnerability baseline.",
+      "confidence": 0.98
+    },
+    "orderId": "knpefj3l6fq",
+    "status": "CREATED"
   }
 }

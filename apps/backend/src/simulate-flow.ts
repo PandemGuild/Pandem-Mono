@@ -36,7 +36,7 @@ async function simulate() {
   // ROLE 2: THE ESCROW (ON-CHAIN)
   // -------------------------------------------------------
   console.log("\n[ROLE: SMART CONTRACT]");
-  console.log("3. createJob() called on Base Sepolia.");
+  console.log("3. createJob() called on Celo Sepolia.");
   const jobId = 123; // Mocked ID
   console.log(`   Result: Job #${jobId} is OPEN.`);
 

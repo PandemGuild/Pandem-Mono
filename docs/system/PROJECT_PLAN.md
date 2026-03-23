@@ -41,7 +41,7 @@ The agent is an autonomous LangGraph state machine responsible for verifying tha
    - Generates a local `AES-256` key for the verified codebase.
    - Stores the key in a gated vault that only releases it to the Client once the on-chain status is `Completed`.
 3. **On-Chain Settlement**: 
-   - Triggers `complete(jobId, proofHash)` on Base Sepolia.
+   - Triggers `complete(jobId, proofHash)` on Celo Sepolia.
    - This single action releases payment AND unlocks the atomic gate for the Client.
 
 ### Security Guarantee

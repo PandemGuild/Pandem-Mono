@@ -29,7 +29,7 @@ async function main() {
   const evaluator = new ethers.Wallet(W3_KEY, provider);
 
   console.log("--- STARTING SCENARIO: ATOMIC SECURITY FIX HANDOVER ---");
-  console.log("Project: Pandem (Base Sepolia + Lit Protocol)");
+  console.log("Project: Pandem (Celo Sepolia + Lit Protocol)");
   console.log("-------------------------------------------------------\n");
 
   // 1. INITIALIZE LIT CLIENT
@@ -62,7 +62,7 @@ async function main() {
     ethers.ZeroAddress
   );
   await createTx.wait();
-  console.log(`🟢 Job ${jobId} created on Base Sepolia.\n`);
+  console.log(`🟢 Job ${jobId} created on Celo Sepolia.\n`);
 
   // 3. ENCRYPT DATA (The "Fix")
   console.log("Step 3: Proposer encrypting the Fix URL...");

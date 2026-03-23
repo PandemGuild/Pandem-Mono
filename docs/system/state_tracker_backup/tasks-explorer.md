@@ -12,7 +12,7 @@ The Explorer is strictly a read-only visualizer. Its only job is to provide the 
 ## Phase 1: Vite Foundation
 - [ ] Initialize the Vite React project.
 - [ ] Install TailwindCSS and configure dark mode.
-- [ ] Install `wagmi` and `viem` to connect directly to the Base Sepolia (or local Hardhat) network so we can read contract states. 
+- [ ] Install `wagmi` and `viem` to connect directly to the Celo Sepolia (or local Hardhat) network so we can read contract states. 
 - [ ] Set up a polling interval (`useQuery` or `useEffect`) to fetch active pacts from the backend `GET /api/pacts` endpoint.
 
 ---

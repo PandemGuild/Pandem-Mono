@@ -40,5 +40,5 @@
 ---
 
 ## Phase 5: Polish & Deployment
-- [ ] Update the `viem` client RPC URL to point to **Base Sepolia**.
+- [ ] Update the `viem` client RPC URL to point to **Celo Sepolia**.
 - [ ] Add basic Express error handling and console logging to output `conversationLog` paths so you can copy-paste them for the Devfolio submission.
